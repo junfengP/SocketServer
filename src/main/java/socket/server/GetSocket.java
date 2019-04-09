@@ -1,8 +1,8 @@
-package SocketServer;
+package socket.server;
 
 
 
-import MyLogger.LoggerUtil;
+import mylogger.LoggerUtil;
 
 import java.io.IOException;
 import java.net.ServerSocket;

@@ -1,4 +1,4 @@
-package SocketServer;
+package socket.server;
 
 /**
  * 启动socketServer.

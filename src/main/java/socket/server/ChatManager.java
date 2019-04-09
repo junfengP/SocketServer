@@ -1,4 +1,4 @@
-package SocketServer;
+package socket.server;
 
 import java.util.Hashtable;
 import java.util.Map;

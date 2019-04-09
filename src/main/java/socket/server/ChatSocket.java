@@ -1,15 +1,13 @@
-package SocketServer;
+package socket.server;
 
 
-import MyLogger.LoggerUtil;
+import mylogger.LoggerUtil;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import sun.rmi.runtime.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
