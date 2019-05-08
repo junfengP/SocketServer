@@ -16,9 +16,9 @@ import org.apache.log4j.PropertyConfigurator;
 public class LoggerUtil {
     public static Logger server = Logger.getLogger("socketserver");
 
-    static {
-        System.out.println(System.getProperty("user.dir"));
-
-        PropertyConfigurator.configure("log4j.properties");
-    }
+//    static {
+//        System.out.println(System.getProperty("user.dir"));
+//
+//        PropertyConfigurator.configure("log4j.properties");
+//    }
 }

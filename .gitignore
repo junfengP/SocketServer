@@ -70,3 +70,4 @@ fabric.properties
 META-INF
 target
 *test*
+logs/

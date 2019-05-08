@@ -44,7 +44,9 @@ public class ChatManager {
      * @param type 设备类型
      */
     public void deregisterType(String type) {
-        address.remove(type);
+        if(null != type) {
+            address.remove(type);
+        }
     }
 
 

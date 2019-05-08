@@ -1,9 +1,9 @@
 package socket.server;
 
 
-import mylogger.LoggerUtil;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import mylogger.LoggerUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +28,6 @@ public class ChatSocket extends Thread {
     private static final String FIELD_TYPE = "type";
     private static final String FIELD_TO = "to";
     private static final String FIELD_MSG = "message";
-
 
 
     public ChatSocket(Socket socket) {
@@ -59,48 +58,45 @@ public class ChatSocket extends Thread {
     @Override
     public void run() {
         while (true) {
-            if (socket.isClosed()) {
-                // 如果连接断开，则从登记列表中删除该连接
-                ChatManager.GetChatManager().deregisterType(selfType);
-                break;
-            }
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
                 String line;
-                while ((line = br.readLine()) != null) {
-                    LoggerUtil.server.debug(line);
-                    // 尝试json解析字符串，若异常，则跳过
-                    JSONObject jo = (JSONObject) JSONObject.parse(line);
-
-                    if(jo == null) throw new MsgStructureException("Not JSON String");
-
-                    // 解析 是否 为 注册类型 命令
-                    if(jo.containsKey(FIELD_TYPE)){
-                        selfType = jo.getString(FIELD_TYPE);
-                        ChatManager.GetChatManager().registerType(selfType, this);
-                    }
-
-
-                    // 解析 是否 为 转发消息 命令
-                   if(jo.containsKey(FIELD_TO) && jo.containsKey(FIELD_MSG))
-                   {
-                       String dest = jo.getString(FIELD_TO);
-                       String msg = jo.getString(FIELD_MSG);
-                       ChatManager.GetChatManager().Send(dest, msg);
-                   }
-
+                line = br.readLine();
+                if (null == line) {
+                    // 连接断开，则无法接收到消息，从登记列表中删除该连接
+                    ChatManager.GetChatManager().deregisterType(selfType);
+                    break;
                 }
-            } catch (SocketException e){
+                LoggerUtil.server.debug(line);
+                // 尝试json解析字符串，若异常，则跳过
+                JSONObject jo = (JSONObject) JSONObject.parse(line);
+
+                if (jo == null) {
+                    throw new MsgStructureException("Not JSON String");
+                }
+                // 解析 是否 为 注册类型 命令
+                if (jo.containsKey(FIELD_TYPE)) {
+                    selfType = jo.getString(FIELD_TYPE);
+                    ChatManager.GetChatManager().registerType(selfType, this);
+                }
+
+                // 解析 是否 为 转发消息 命令
+                if (jo.containsKey(FIELD_TO) && jo.containsKey(FIELD_MSG)) {
+                    String dest = jo.getString(FIELD_TO);
+                    String msg = jo.getString(FIELD_MSG);
+                    ChatManager.GetChatManager().Send(dest, msg);
+                }
+            } catch (SocketException e) {
                 ChatManager.GetChatManager().deregisterType(selfType);
                 break;
-            } catch (IOException | JSONException | MsgStructureException|ClassCastException e) {
+            } catch (IOException | JSONException | MsgStructureException | ClassCastException e) {
                 LoggerUtil.server.error(e.getMessage());
             }
         }
     }
 }
 
-class MsgStructureException extends Exception{
+class MsgStructureException extends Exception {
     public MsgStructureException(String message) {
         super(message);
     }
