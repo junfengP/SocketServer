@@ -11,6 +11,14 @@ package socket.server;
 
 public class SocketCenter {
     public static void main(String[] args) {
-        new GetSocket().start();
+        if(args.length ==0) {
+            new GetSocket().start();
+        } else if(args.length == 1) {
+            int port = Integer.parseInt(args[0]);
+            new GetSocket(port).start();
+        } else {
+            throw new IllegalArgumentException("Require port number.");
+        }
+
     }
 }
