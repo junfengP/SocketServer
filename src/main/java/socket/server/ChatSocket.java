@@ -22,13 +22,21 @@ import java.nio.charset.StandardCharsets;
 
 
 public class ChatSocket extends Thread {
-    private Socket socket;
-    private String selfType;
-
     private static final String FIELD_TYPE = "type";
     private static final String FIELD_TO = "to";
     private static final String FIELD_MSG = "message";
-
+    private static final String FIELD_ACTION = "action";
+    private static final String FIELD_VALUE = "value";
+    private static final String FIELD_RESULT = "result";
+    private static final String FIELD_INFO = "info";
+    private static final String CMD_REGISTER = "register";
+    private static final String CMD_CHECK = "check";
+    private static final String RESULT_SUCCESS = "success";
+    private static final String RESULT_FAILED = "failed";
+    private static final String INFO_ONLINE = "online";
+    private static final String INFO_OFFLINE = "offline";
+    private Socket socket;
+    private String selfType;
 
     public ChatSocket(Socket socket) {
         this.socket = socket;
@@ -86,6 +94,24 @@ public class ChatSocket extends Thread {
                     String msg = jo.getString(FIELD_MSG);
                     ChatManager.GetChatManager().Send(dest, msg);
                 }
+
+                // 解析是否 为 新命令框架
+                if (jo.containsKey(FIELD_ACTION) && jo.containsKey(FIELD_VALUE)) {
+                    String action = jo.getString(FIELD_ACTION);
+                    String value = jo.getString(FIELD_VALUE);
+                    if (CMD_REGISTER.equals(action)) {
+                        // 注册命令
+                        selfType = value;
+                        ChatManager.GetChatManager().registerType(selfType, this);
+                        replyResult(RESULT_SUCCESS, "");
+                    } else if (CMD_CHECK.equals(action)) {
+                        // 检查在线命令
+                        boolean online = ChatManager.GetChatManager().checkOnline(value);
+                        replyResult(RESULT_SUCCESS, online ? INFO_ONLINE : INFO_OFFLINE);
+                    } else {
+                        replyResult(RESULT_FAILED, "CMD unknown.");
+                    }
+                }
             } catch (SocketException e) {
                 ChatManager.GetChatManager().deregisterType(selfType);
                 break;
@@ -94,10 +120,23 @@ public class ChatSocket extends Thread {
             }
         }
     }
+
+    /**
+     * 回复消息
+     *
+     * @param result 命令解析是否成功
+     * @param info   额外信息
+     */
+    private void replyResult(String result, String info) {
+        JSONObject reply = new JSONObject();
+        reply.put(FIELD_RESULT, result);
+        reply.put(FIELD_INFO, info);
+        this.send(reply.toJSONString());
+    }
 }
 
 class MsgStructureException extends Exception {
-    public MsgStructureException(String message) {
+    MsgStructureException(String message) {
         super(message);
     }
 }
