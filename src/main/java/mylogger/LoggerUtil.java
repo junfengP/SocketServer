@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
  */
 
 public class LoggerUtil {
-    public static Logger server = Logger.getLogger("socketserver");
+    public static Logger server = Logger.getLogger("server");
 
 //    static {
 //        System.out.println(System.getProperty("user.dir"));

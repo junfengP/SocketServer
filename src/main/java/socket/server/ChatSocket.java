@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 /**
  * 处理单个socket连接.
@@ -75,7 +76,6 @@ public class ChatSocket extends Thread {
                     ChatManager.GetChatManager().deregisterType(selfType);
                     break;
                 }
-                LoggerUtil.server.debug(line);
                 // 尝试json解析字符串，若异常，则跳过
                 JSONObject jo = (JSONObject) JSONObject.parse(line);
 
@@ -86,6 +86,7 @@ public class ChatSocket extends Thread {
                 if (jo.containsKey(FIELD_TYPE)) {
                     selfType = jo.getString(FIELD_TYPE);
                     ChatManager.GetChatManager().registerType(selfType, this);
+                    LoggerUtil.server.info(line);
                 }
 
                 // 解析 是否 为 转发消息 命令
@@ -93,6 +94,7 @@ public class ChatSocket extends Thread {
                     String dest = jo.getString(FIELD_TO);
                     String msg = jo.getString(FIELD_MSG);
                     ChatManager.GetChatManager().Send(dest, msg);
+                    LoggerUtil.server.info(line);
                 }
 
                 // 解析是否 为 新命令框架
@@ -104,12 +106,15 @@ public class ChatSocket extends Thread {
                         selfType = value;
                         ChatManager.GetChatManager().registerType(selfType, this);
                         replyResult(RESULT_SUCCESS, "");
+                        LoggerUtil.server.info(line);
                     } else if (CMD_CHECK.equals(action)) {
                         // 检查在线命令
                         boolean online = ChatManager.GetChatManager().checkOnline(value);
                         replyResult(RESULT_SUCCESS, online ? INFO_ONLINE : INFO_OFFLINE);
+                        LoggerUtil.server.debug(line);
                     } else {
                         replyResult(RESULT_FAILED, "CMD unknown.");
+                        LoggerUtil.server.debug(line);
                     }
                 }
             } catch (SocketException e) {
